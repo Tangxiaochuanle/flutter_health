@@ -1,11 +1,11 @@
 health
 2.17
-file:///Users/apple/Desktop/pro/demo/flutter-plugins/packages/health/
-file:///Users/apple/Desktop/pro/demo/flutter-plugins/packages/health/lib/
+file:///Users/apple/Desktop/pro/work/laien/flutter/plugin/flutter_health/
+file:///Users/apple/Desktop/pro/work/laien/flutter/plugin/flutter_health/lib/
 health_example
 2.17
-file:///Users/apple/Desktop/pro/demo/flutter-plugins/packages/health/example/
-file:///Users/apple/Desktop/pro/demo/flutter-plugins/packages/health/example/lib/
+file:///Users/apple/Desktop/pro/work/laien/flutter/plugin/flutter_health/example/
+file:///Users/apple/Desktop/pro/work/laien/flutter/plugin/flutter_health/example/lib/
 async
 2.14
 file:///Users/apple/Library/flutter/flutter_3.3.10/.pub-cache/hosted/pub.flutter-io.cn/async-2.9.0/
