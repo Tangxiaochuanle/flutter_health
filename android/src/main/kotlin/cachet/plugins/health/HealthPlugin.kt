@@ -104,6 +104,9 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
     private var SLEEP_OUT_OF_BED = "SLEEP_OUT_OF_BED"
     private var WORKOUT = "WORKOUT"
 
+    // 方法
+    var callMethod = ""
+
     val workoutTypeMap = mapOf(
         "AEROBICS" to FitnessActivities.AEROBICS,
         "AMERICAN_FOOTBALL" to FitnessActivities.FOOTBALL_AMERICAN,
@@ -334,7 +337,7 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
         // "WINDSURFING" to ExerciseSessionRecord.EXERCISE_TYPE_WINDSURFING,
         "YOGA" to ExerciseSessionRecord.EXERCISE_TYPE_YOGA,
         // "ZUMBA" to ExerciseSessionRecord.EXERCISE_TYPE_ZUMBA,
-         "OTHER" to ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT,
+        "OTHER" to ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT,
     )
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -411,7 +414,11 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
                             "FLUTTER_HEALTH",
                             "Access Denied (to Health Connect) due to too many requests!"
                         )
-                        mResult?.success(false)
+                        if(callMethod == "requestAuthorization"){
+                            mResult?.success("request_blocked")
+                        }else {
+                            mResult?.success(false)
+                        }
                         return false
                     }
                 }
@@ -1399,6 +1406,7 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
      *  Handle calls from the MethodChannel
      */
     override fun onMethodCall(call: MethodCall, result: Result) {
+        callMethod = call.method
         when (call.method) {
             "useHealthConnectIfAvailable" -> useHealthConnectIfAvailable(call, result)
             "hasPermissions" -> hasPermissions(call, result)
@@ -2050,7 +2058,7 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
                         endZoneOffset = null,
                         exerciseType = workoutType,
                         title = showTitle,
-                ),
+                    ),
                 )
                 if (totalDistance != null) {
                     list.add(

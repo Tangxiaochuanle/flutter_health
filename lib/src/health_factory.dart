@@ -104,8 +104,8 @@ class HealthFactory {
   ///   As Apple HealthKit will not disclose if READ access has been granted for a data type due to privacy concern,
   ///   this method will return **true if the window asking for permission was showed to the user without errors**
   ///   if it is called on iOS with a READ or READ_WRITE access.
-  Future<bool> requestAuthorization(
-    List<HealthDataType> types, {
+  Future<Object> requestAuthorization(
+    List<HealthDataType> types,{
     List<HealthDataAccess>? permissions,
   }) async {
     if (permissions != null && permissions.length != types.length) {
@@ -137,8 +137,9 @@ class HealthFactory {
     if (_platformType == PlatformType.ANDROID) _handleBMI(mTypes, mPermissions);
 
     List<String> keys = mTypes.map((e) => e.name).toList();
-    final bool? isAuthorized = await _channel.invokeMethod('requestAuthorization', {'types': keys, "permissions": mPermissions});
-    return isAuthorized ?? false;
+    final result = await _channel.invokeMethod('requestAuthorization', {'types': keys, "permissions": mPermissions});
+    // final bool? isAuthorized = await _channel.invokeMethod('requestAuthorization', {'types': keys, "permissions": mPermissions});
+    return result;
   }
 
   /// Obtains health and weight if BMI is requested on Android.
