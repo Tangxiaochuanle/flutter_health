@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:health/health.dart';
+import 'package:flutter_healths/health.dart';
 import 'package:health_example/util.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -35,7 +35,13 @@ class _HealthAppState extends State<HealthApp> {
   // NOTE: These are only the ones supported on Androids new API Health Connect.
   // Both Android's Google Fit and iOS' HealthKit have more types that we support in the enum list [HealthDataType]
   // Add more - like AUDIOGRAM, HEADACHE_SEVERE etc. to try them.
-  static final types = dataTypesAndroid;
+  // static final types = dataTypesAndroid;
+  static final types = [
+    HealthDataType.HEIGHT,
+    HealthDataType.WEIGHT,
+    HealthDataType.WORKOUT,
+    HealthDataType.ACTIVE_ENERGY_BURNED,
+  ];
   // Or selected types
   // static final types = [
   //   HealthDataType.WEIGHT,
@@ -75,19 +81,34 @@ class _HealthAppState extends State<HealthApp> {
     // Hence, we have to request with WRITE as well.
     hasPermissions = false;
 
-    bool authorized = false;
+    bool? authorized = false;
     if (!hasPermissions) {
       // requesting access to the data types before reading them
       try {
-        authorized =
-            await health.requestAuthorization(types, permissions: permissions);
+        var result = await health.requestAuthorization(types, permissions: permissions);
+        if(result.runtimeType == String){
+          //https://issuetracker.google.com/issues/233239418?pli=1
+          // 触发了系统两次拒绝
+          debugPrint("requestAuthorization: You can turn on the health data permission later in the Healthy Connect");
+        }else if(result.runtimeType == bool){
+          authorized = result as bool?;
+
+          debugPrint(">>>>>> authorized = $authorized");
+
+          //二次校验权限，没有权限
+          hasPermissions = await health.hasPermissions(types, permissions: permissions);
+          if(hasPermissions != null && !hasPermissions && (authorized ?? false)){
+            authorized = false;
+          }
+          debugPrint(">>>>>> hasPermissions = $hasPermissions");
+        }
       } catch (error) {
         print("Exception in authorize: $error");
       }
     }
 
     setState(() => _state =
-        (authorized) ? AppState.AUTHORIZED : AppState.AUTH_NOT_GRANTED);
+        (authorized ?? false) ? AppState.AUTHORIZED : AppState.AUTH_NOT_GRANTED);
   }
 
   /// Fetch data points from the health plugin and show them in the app.
@@ -215,9 +236,14 @@ class _HealthAppState extends State<HealthApp> {
     final now = DateTime.now();
     final midnight = DateTime(now.year, now.month, now.day);
 
-    bool requested = await health.requestAuthorization([HealthDataType.STEPS]);
+    bool? requested = false;
 
-    if (requested) {
+    var result = await health.requestAuthorization([HealthDataType.STEPS]);
+    if(result.runtimeType == bool){
+      requested = result as bool?;
+    }
+
+    if (requested ?? false) {
       try {
         steps = await health.getTotalStepsInInterval(midnight, now);
       } catch (error) {

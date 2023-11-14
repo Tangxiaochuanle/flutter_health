@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
+    <CLASSES>
+      <root url="file://$USER_HOME$/Library/flutter/flutter_3.3.10/.pub-cache/hosted/pub.flutter-io.cn/device_info_plus-8.2.2" />
+      <root url="file://$USER_HOME$/Library/flutter/flutter_3.3.10/.pub-cache/hosted/pub.flutter-io.cn/permission_handler-10.4.5" />
+      <root url="file://$PROJECT_DIR$/.." />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
