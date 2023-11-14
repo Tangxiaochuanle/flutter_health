@@ -22,6 +22,7 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessActivities
 import com.google.android.gms.fitness.FitnessOptions
@@ -347,9 +348,17 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
         context = flutterPluginBinding.applicationContext
         threadPoolExecutor = Executors.newFixedThreadPool(4)
         checkAvailability()
-        if (healthConnectAvailable) {
+        initHealthConnectClient()
+//        if (healthConnectAvailable) {
+//            healthConnectClient =
+//                HealthConnectClient.getOrCreate(flutterPluginBinding.applicationContext)
+//        }
+    }
+
+    fun initHealthConnectClient(){
+        if (healthConnectAvailable && !::healthConnectClient.isInitialized && context != null) {
             healthConnectClient =
-                HealthConnectClient.getOrCreate(flutterPluginBinding.applicationContext)
+                HealthConnectClient.getOrCreate(context!!)
         }
     }
 
@@ -414,9 +423,9 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
                             "FLUTTER_HEALTH",
                             "Access Denied (to Health Connect) due to too many requests!"
                         )
-                        if(callMethod == "requestAuthorization"){
+                        if (callMethod == "requestAuthorization") {
                             mResult?.success("request_blocked")
-                        }else {
+                        } else {
                             mResult?.success(false)
                         }
                         return false
@@ -1245,6 +1254,9 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
         }
         mResult = result
 
+        checkAvailability()
+        initHealthConnectClient()
+
         if (useHealthConnectIfAvailable && healthConnectAvailable) {
             requestAuthorizationHC(call, result)
             return
@@ -1507,10 +1519,11 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
         scope.launch {
             var grantedPermissions = false
             try {
-                grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
-                    .containsAll(permList)
-            }catch (e:IllegalStateException){
-                Log.i("health info","fail: ${e.message}")
+                grantedPermissions =
+                    healthConnectClient.permissionController.getGrantedPermissions()
+                        .containsAll(permList)
+            } catch (e: IllegalStateException) {
+                Log.i("health info", "fail: ${e.message}")
             }
             result.success(
                 grantedPermissions
@@ -2041,7 +2054,7 @@ class HealthPlugin(private var channel: MethodChannel? = null) :
         val workoutType = workoutTypeMapHealthConnect[type]!!
 
         var showTitle = ""
-        if(titleStr != null) {
+        if (titleStr != null) {
             showTitle = titleStr
         } else {
             showTitle = type
