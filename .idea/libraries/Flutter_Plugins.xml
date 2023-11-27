@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
-      <root url="file://$USER_HOME$/Library/flutter/flutter_3.3.10/.pub-cache/hosted/pub.flutter-io.cn/device_info_plus-8.2.2" />
       <root url="file://$PROJECT_DIR$" />
-      <root url="file://$USER_HOME$/Library/flutter/flutter_3.3.10/packages/integration_test" />
+      <root url="file://$USER_HOME$/fvm/versions/3.13.9/packages/integration_test" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.flutter-io.cn/device_info_plus-9.1.1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
