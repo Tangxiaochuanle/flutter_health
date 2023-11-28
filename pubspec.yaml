@@ -24,6 +24,7 @@ flutter:
     platforms:
       android:
         package: cachet.plugins.health
-        pluginClass: HealthPlugin
+        pluginClass: HealthConnectPlugin
+#        pluginClass: HealthPlugin
       ios:
         pluginClass: HealthPlugin

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_healths/health.dart';
 import 'package:health_example/util.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_apps/device_apps.dart';
 
 void main() => runApp(HealthApp());
 
@@ -65,6 +66,13 @@ class _HealthAppState extends State<HealthApp> {
   HealthFactory health = HealthFactory(useHealthConnectIfAvailable: true);
 
   Future authorize() async {
+    //先验证是否安装health connect
+    bool isInstalled = await DeviceApps.isAppInstalled('com.google.android.apps.healthdata');
+    debugPrint(">>>>> 是否安装应用：$isInstalled");
+    if(!isInstalled){
+      return;
+    }
+
     // If we are trying to read Step Count, Workout, Sleep or other data that requires
     // the ACTIVITY_RECOGNITION permission, we need to request the permission first.
     // This requires a special request authorization call.
@@ -155,40 +163,48 @@ class _HealthAppState extends State<HealthApp> {
     // Both Android's Google Fit and iOS' HealthKit have more types that we support in the enum list [HealthDataType]
     // Add more - like AUDIOGRAM, HEADACHE_SEVERE etc. to try them.
     bool success = true;
-    success &= await health.writeHealthData(
-        1.925, HealthDataType.HEIGHT, earlier, now);
-    success &=
-        await health.writeHealthData(90, HealthDataType.WEIGHT, earlier, now);
-    success &= await health.writeHealthData(
-        90, HealthDataType.HEART_RATE, earlier, now);
-    success &=
-        await health.writeHealthData(90, HealthDataType.STEPS, earlier, now);
-    success &= await health.writeHealthData(
-        200, HealthDataType.ACTIVE_ENERGY_BURNED, earlier, now);
-    success &= await health.writeHealthData(
-        70, HealthDataType.HEART_RATE, earlier, now);
-    success &= await health.writeHealthData(
-        37, HealthDataType.BODY_TEMPERATURE, earlier, now);
-    success &= await health.writeBloodOxygen(98, earlier, now, flowRate: 1.0);
-    success &= await health.writeHealthData(
-        105, HealthDataType.BLOOD_GLUCOSE, earlier, now);
-    success &=
-        await health.writeHealthData(1.8, HealthDataType.WATER, earlier, now);
+
     success &= await health.writeWorkoutData(
         HealthWorkoutActivityType.AMERICAN_FOOTBALL,
         now.subtract(Duration(minutes: 15)),
         now,
-        totalDistance: 2430,
-        totalEnergyBurned: 400);
-    success &= await health.writeBloodPressure(90, 80, earlier, now);
-    success &= await health.writeHealthData(
-        0.0, HealthDataType.SLEEP_REM, earlier, now);
-    success &= await health.writeHealthData(
-        0.0, HealthDataType.SLEEP_ASLEEP, earlier, now);
-    success &= await health.writeHealthData(
-        0.0, HealthDataType.SLEEP_AWAKE, earlier, now);
-    success &= await health.writeHealthData(
-        0.0, HealthDataType.SLEEP_DEEP, earlier, now);
+        totalDistance: 0,
+        totalEnergyBurned: 40);
+
+    // success &= await health.writeHealthData(
+    //     1.925, HealthDataType.HEIGHT, earlier, now);
+    // success &=
+    //     await health.writeHealthData(90, HealthDataType.WEIGHT, earlier, now);
+    // success &= await health.writeHealthData(
+    //     90, HealthDataType.HEART_RATE, earlier, now);
+    // success &=
+    //     await health.writeHealthData(90, HealthDataType.STEPS, earlier, now);
+    // success &= await health.writeHealthData(
+    //     200, HealthDataType.ACTIVE_ENERGY_BURNED, earlier, now);
+    // success &= await health.writeHealthData(
+    //     70, HealthDataType.HEART_RATE, earlier, now);
+    // success &= await health.writeHealthData(
+    //     37, HealthDataType.BODY_TEMPERATURE, earlier, now);
+    // success &= await health.writeBloodOxygen(98, earlier, now, flowRate: 1.0);
+    // success &= await health.writeHealthData(
+    //     105, HealthDataType.BLOOD_GLUCOSE, earlier, now);
+    // success &=
+    //     await health.writeHealthData(1.8, HealthDataType.WATER, earlier, now);
+    // success &= await health.writeWorkoutData(
+    //     HealthWorkoutActivityType.AMERICAN_FOOTBALL,
+    //     now.subtract(Duration(minutes: 15)),
+    //     now,
+    //     totalDistance: 2430,
+    //     totalEnergyBurned: 400);
+    // success &= await health.writeBloodPressure(90, 80, earlier, now);
+    // success &= await health.writeHealthData(
+    //     0.0, HealthDataType.SLEEP_REM, earlier, now);
+    // success &= await health.writeHealthData(
+    //     0.0, HealthDataType.SLEEP_ASLEEP, earlier, now);
+    // success &= await health.writeHealthData(
+    //     0.0, HealthDataType.SLEEP_AWAKE, earlier, now);
+    // success &= await health.writeHealthData(
+    //     0.0, HealthDataType.SLEEP_DEEP, earlier, now);
 
     // Store an Audiogram
     // Uncomment these on iOS - only available on iOS

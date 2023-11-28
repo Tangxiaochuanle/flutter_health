@@ -59,7 +59,7 @@ android {
         release {
             keyAlias 'key'
             keyPassword '123456'
-            storeFile file('/Users/apple/Desktop/test_health1.jks')
+            storeFile file('../test_health1.jks')
             storePassword '123456'
             v1SigningEnabled true
             v2SigningEnabled true
