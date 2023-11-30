@@ -357,10 +357,9 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     private fun revokePermissions(call: MethodCall, result: Result) {
         if (useHealthConnectIfAvailable && healthConnectAvailable) {
-            //不用每次都清除health connect权限
-//            scope.launch {
-//                healthConnectClient.permissionController.revokeAllPermissions()
-//            }
+            scope.launch {
+                healthConnectClient.permissionController.revokeAllPermissions()
+            }
             result.notImplemented()
             return
         }
