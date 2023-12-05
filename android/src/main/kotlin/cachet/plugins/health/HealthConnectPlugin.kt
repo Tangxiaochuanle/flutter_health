@@ -408,6 +408,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     override fun onMethodCall(call: MethodCall, result: Result) {
         callMethod = call.method
+        Log.i("tag--","method name ${call.method}")
         when (call.method) {
             "useHealthConnectIfAvailable" -> useHealthConnectIfAvailable(call, result)
             "hasPermissions" -> hasPermissions(call, result)
@@ -477,28 +478,31 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
                     HealthPermission.getReadPermission(dataType),
                 )
             } else {
-                permList.addAll(
-                    listOf(
-                        HealthPermission.getReadPermission(dataType),
-                        HealthPermission.getWritePermission(dataType),
-                    ),
-                )
+
+                permList.add(HealthPermission.getWritePermission(dataType))
+//                permList.addAll(
+//                    listOf(
+////                        HealthPermission.getReadPermission(dataType),
+//                        HealthPermission.getWritePermission(dataType),
+//                    ),
+//                )
             }
             // Workout also needs distance and total energy burned too
             if (typeKey == WORKOUT) {
                 if (access == 0) {
-                    permList.addAll(
-                        listOf(
-                            HealthPermission.getReadPermission(DistanceRecord::class),
-                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-                        ),
-                    )
+                    permList.add(HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class))
+//                    permList.addAll(
+//                        listOf(
+////                            HealthPermission.getReadPermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
+//                        ),
+//                    )
                 } else {
                     permList.addAll(
                         listOf(
-                            HealthPermission.getReadPermission(DistanceRecord::class),
-                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-                            HealthPermission.getWritePermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
+//                            HealthPermission.getWritePermission(DistanceRecord::class),
                             HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class),
                         ),
                     )
@@ -511,6 +515,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
                 grantedPermissions =
                     healthConnectClient.permissionController.getGrantedPermissions()
                         .containsAll(permList)
+
             } catch (e: IllegalStateException) {
                 Log.i("health info", "fail: ${e.message}")
             }
@@ -534,28 +539,30 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
                     HealthPermission.getReadPermission(dataType),
                 )
             } else {
-                permList.addAll(
-                    listOf(
-                        HealthPermission.getReadPermission(dataType),
-                        HealthPermission.getWritePermission(dataType),
-                    ),
-                )
+                permList.add(HealthPermission.getWritePermission(dataType))
+//                permList.addAll(
+//                    listOf(
+//                        HealthPermission.getReadPermission(dataType),
+//                        HealthPermission.getWritePermission(dataType),
+//                    ),
+//                )
             }
             // Workout also needs distance and total energy burned too
             if (typeKey == WORKOUT) {
                 if (access == 0) {
-                    permList.addAll(
-                        listOf(
-                            HealthPermission.getReadPermission(DistanceRecord::class),
-                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-                        ),
-                    )
+                    permList.add(HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class))
+//                    permList.addAll(
+//                        listOf(
+//                            HealthPermission.getReadPermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
+//                        ),
+//                    )
                 } else {
                     permList.addAll(
                         listOf(
-                            HealthPermission.getReadPermission(DistanceRecord::class),
-                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-                            HealthPermission.getWritePermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(DistanceRecord::class),
+//                            HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
+//                            HealthPermission.getWritePermission(DistanceRecord::class),
                             HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class),
                         ),
                     )
