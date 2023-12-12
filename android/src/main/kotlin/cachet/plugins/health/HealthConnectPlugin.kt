@@ -358,9 +358,13 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     private fun revokePermissions(call: MethodCall, result: Result) {
         if (useHealthConnectIfAvailable && healthConnectAvailable) {
             scope.launch {
-                healthConnectClient.permissionController.revokeAllPermissions()
+                try {
+                    healthConnectClient.permissionController.revokeAllPermissions()
+                }catch (e: Exception) {
+                    Log.i("FLUTTER_HEALTH::ERROR", "revokePermissions: ${e.message}")
+                }
             }
-            result.notImplemented()
+            result.success(true)
             return
         }
         if (context == null) {
@@ -408,7 +412,6 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     override fun onMethodCall(call: MethodCall, result: Result) {
         callMethod = call.method
-        Log.i("tag--","method name ${call.method}")
         when (call.method) {
             "useHealthConnectIfAvailable" -> useHealthConnectIfAvailable(call, result)
             "hasPermissions" -> hasPermissions(call, result)

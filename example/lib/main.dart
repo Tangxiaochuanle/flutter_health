@@ -41,7 +41,7 @@ class _HealthAppState extends State<HealthApp> {
     HealthDataType.HEIGHT,
     HealthDataType.WEIGHT,
     HealthDataType.WORKOUT,
-    HealthDataType.ACTIVE_ENERGY_BURNED,
+    // HealthDataType.ACTIVE_ENERGY_BURNED,
   ];
   // Or selected types
   // static final types = [
