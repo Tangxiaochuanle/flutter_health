@@ -322,6 +322,8 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     }
 
     private fun hasPermissions(call: MethodCall, result: Result) {
+        checkAvailability()
+        initHealthConnectClient()
         if (healthConnectAvailable) {
             hasPermissionsHC(call, result)
             return
