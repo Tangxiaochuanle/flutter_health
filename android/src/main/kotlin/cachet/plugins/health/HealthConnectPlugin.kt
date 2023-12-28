@@ -3,11 +3,14 @@ package cachet.plugins.health
 // import androidx.compose.runtime.mutableStateOf
 
 // Health Connect
+
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Handler
+import android.os.PowerManager
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.health.connect.client.HealthConnectClient
@@ -34,6 +37,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.*
 
+
 const val HEALTH_CONNECT_RESULT_CODE = 16969
 const val CHANNEL_NAME = "flutter_health"
 
@@ -48,7 +52,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     private var activity: Activity? = null
     private var context: Context? = null
     private var threadPoolExecutor: ExecutorService? = null
-    private var useHealthConnectIfAvailable: Boolean = false
+//    private var useHealthConnectIfAvailable: Boolean = false
     private lateinit var healthConnectClient: HealthConnectClient
     private lateinit var scope: CoroutineScope
 
@@ -159,8 +163,11 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
 
     fun initHealthConnectClient() {
         if (healthConnectAvailable && !::healthConnectClient.isInitialized && context != null) {
-            healthConnectClient =
-                HealthConnectClient.getOrCreate(context!!)
+            try {
+                healthConnectClient =
+                    HealthConnectClient.getOrCreate(context!!)
+            } catch (e: Exception) {
+            }
         }
     }
 
@@ -238,10 +245,10 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * Delete records of the given type in the time range
      */
     private fun delete(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable) {
             deleteHCData(call, result)
             return
-        }else{
+        } else {
             result.success(false)
             return
         }
@@ -251,10 +258,10 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * Save a Blood Pressure measurement with systolic and diastolic values
      */
     private fun writeBloodPressure(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable) {
             writeBloodPressureHC(call, result)
             return
-        }else{
+        } else {
             result.success(false)
             return
         }
@@ -264,10 +271,10 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * Save a data type in Google Fit
      */
     private fun writeData(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if ( healthConnectAvailable && isScreenLight()) {
             writeHCData(call, result)
             return
-        }else{
+        } else {
             result.success(false)
             return
         }
@@ -278,10 +285,10 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     private fun writeBloodOxygen(call: MethodCall, result: Result) {
         // Health Connect does not support supplemental flow rate, thus it is ignored
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable) {
             writeHCData(call, result)
             return
-        }else{
+        } else {
             result.success(false)
             return
         }
@@ -292,7 +299,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     private fun writeWorkoutData(call: MethodCall, result: Result) {
 
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable && isScreenLight()) {
             writeWorkoutHCData(call, result)
             return
         } else {
@@ -305,7 +312,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * Get all datapoints of the DataType within the given time range
      */
     private fun getData(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if ( healthConnectAvailable) {
             getHCData(call, result)
             return
         } else {
@@ -315,7 +322,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     }
 
     private fun hasPermissions(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable) {
             hasPermissionsHC(call, result)
             return
         } else {
@@ -329,7 +336,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * with the the READ or READ_WRITE permission type.
      */
     private fun requestAuthorization(call: MethodCall, result: Result) {
-        if (context == null) {
+        if (context == null || !healthConnectAvailable) {
             result.success(false)
             return
         }
@@ -338,7 +345,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
         checkAvailability()
         initHealthConnectClient()
 
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if ( healthConnectAvailable) {
             requestAuthorizationHC(call, result)
             return
         } else {
@@ -356,11 +363,11 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * `disableFit` was used.
      */
     private fun revokePermissions(call: MethodCall, result: Result) {
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if ( healthConnectAvailable) {
             scope.launch {
                 try {
                     healthConnectClient.permissionController.revokeAllPermissions()
-                }catch (e: Exception) {
+                } catch (e: Exception) {
                     Log.i("FLUTTER_HEALTH::ERROR", "revokePermissions: ${e.message}")
                 }
             }
@@ -379,7 +386,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
         val start = call.argument<Long>("startTime")!!
         val end = call.argument<Long>("endTime")!!
 
-        if (useHealthConnectIfAvailable && healthConnectAvailable) {
+        if (healthConnectAvailable) {
             getStepsHealthConnect(start, end, result)
             return
         }
@@ -413,7 +420,6 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     override fun onMethodCall(call: MethodCall, result: Result) {
         callMethod = call.method
         when (call.method) {
-            "useHealthConnectIfAvailable" -> useHealthConnectIfAvailable(call, result)
             "hasPermissions" -> hasPermissions(call, result)
             "requestAuthorization" -> requestAuthorization(call, result)
             "revokePermissions" -> revokePermissions(call, result)
@@ -458,13 +464,10 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
     var healthConnectStatus = HealthConnectClient.SDK_UNAVAILABLE
 
     fun checkAvailability() {
-        healthConnectStatus = HealthConnectClient.getSdkStatus(context!!)
-        healthConnectAvailable = healthConnectStatus == HealthConnectClient.SDK_AVAILABLE
-    }
-
-    fun useHealthConnectIfAvailable(call: MethodCall, result: Result) {
-        useHealthConnectIfAvailable = true
-        result.success(null)
+        try {
+            healthConnectStatus = HealthConnectClient.getSdkStatus(context!!)
+            healthConnectAvailable = healthConnectStatus == HealthConnectClient.SDK_AVAILABLE
+        }catch (e:Exception){}
     }
 
     private fun hasPermissionsHC(call: MethodCall, result: Result) {
@@ -1202,4 +1205,31 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
         FLIGHTS_CLIMBED to FloorsClimbedRecord::class,
         RESPIRATORY_RATE to RespiratoryRateRecord::class,
     )
+
+//    fun isBackgroundProcess(context: Context): Boolean {
+//        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+//        val appProcesses = activityManager.runningAppProcesses
+//        var isBackground = true
+//        var processName = "empty"
+//        for (appProcess in appProcesses) {
+//            if (appProcess.processName == context.packageName) {
+//                processName = appProcess.processName
+//                isBackground =
+//                    if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED) {
+//                        true
+//                    } else !(appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND || appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+//            }
+//        }
+//        Log.i("HEALTH CONNECT:", "是否在后台：$isBackground processName:$processName")
+//        return isBackground
+//    }
+
+    // 屏幕是否处于亮状态
+    private fun isScreenLight(): Boolean {
+        var pm = context!!.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return pm.isInteractive
+    }
+
+
+
 }

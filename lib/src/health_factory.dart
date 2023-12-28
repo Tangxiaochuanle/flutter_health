@@ -14,17 +14,10 @@ class HealthFactory {
   static const MethodChannel _channel = MethodChannel('flutter_health');
   String? _deviceId;
   final _deviceInfo = DeviceInfoPlugin();
-  late bool _useHealthConnectIfAvailable;
 
   static PlatformType _platformType = Platform.isAndroid ? PlatformType.ANDROID : PlatformType.IOS;
 
-  /// The plugin was created to use Health Connect (if true) or Google Fit (if false).
-  bool get useHealthConnectIfAvailable => _useHealthConnectIfAvailable;
-
-  HealthFactory({bool useHealthConnectIfAvailable = false}) {
-    _useHealthConnectIfAvailable = useHealthConnectIfAvailable;
-    if (_useHealthConnectIfAvailable) _channel.invokeMethod('useHealthConnectIfAvailable');
-  }
+  HealthFactory();
 
   /// Check if a given data type is available on the platform
   bool isDataTypeAvailable(HealthDataType dataType) =>

@@ -63,7 +63,7 @@ class _HealthAppState extends State<HealthApp> {
   final permissions = types.map((e) => HealthDataAccess.READ_WRITE).toList();
 
   // create a HealthFactory for use in the app
-  HealthFactory health = HealthFactory(useHealthConnectIfAvailable: true);
+  HealthFactory health = HealthFactory();
 
   Future authorize() async {
     //先验证是否安装health connect
