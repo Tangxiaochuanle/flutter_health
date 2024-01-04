@@ -271,7 +271,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      * Save a data type in Google Fit
      */
     private fun writeData(call: MethodCall, result: Result) {
-        if ( healthConnectAvailable && isScreenLight()) {
+        if ( healthConnectAvailable && isScreenLight() && !isBackgroundProcess()) {
             writeHCData(call, result)
             return
         } else {
@@ -299,7 +299,7 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
      */
     private fun writeWorkoutData(call: MethodCall, result: Result) {
 
-        if (healthConnectAvailable && isScreenLight()) {
+        if (healthConnectAvailable && isScreenLight() && !isBackgroundProcess()) {
             writeWorkoutHCData(call, result)
             return
         } else {
@@ -1208,23 +1208,30 @@ class HealthConnectPlugin(private var channel: MethodChannel? = null) :
         RESPIRATORY_RATE to RespiratoryRateRecord::class,
     )
 
-//    fun isBackgroundProcess(context: Context): Boolean {
-//        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-//        val appProcesses = activityManager.runningAppProcesses
-//        var isBackground = true
-//        var processName = "empty"
-//        for (appProcess in appProcesses) {
-//            if (appProcess.processName == context.packageName) {
-//                processName = appProcess.processName
-//                isBackground =
-//                    if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED) {
-//                        true
-//                    } else !(appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND || appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
-//            }
-//        }
-//        Log.i("HEALTH CONNECT:", "是否在后台：$isBackground processName:$processName")
-//        return isBackground
-//    }
+    private fun isBackgroundProcess(): Boolean {
+        if(context == null) {
+            return true
+        }
+        var isBackground = true
+        try {
+            val activityManager = context?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val appProcesses = activityManager.runningAppProcesses
+//            var processName = "empty"
+            for (appProcess in appProcesses) {
+                if (appProcess.processName == context?.packageName) {
+//                    processName = appProcess.processName
+                    isBackground =
+                        if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED) {
+                            true
+                        } else !(appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND || appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+                }
+            }
+        }catch (e:Exception) {
+            return false
+        }
+
+        return isBackground
+    }
 
     // 屏幕是否处于亮状态
     private fun isScreenLight(): Boolean {
